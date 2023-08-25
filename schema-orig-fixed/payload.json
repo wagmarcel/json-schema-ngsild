@@ -1,0 +1,41 @@
+{
+    "metadata": {
+        "ifric_identificationx": {
+            "asset_manufacturer_name": "Manufacturer XYZ",
+            "urn_id": "URN123",
+            "ifric_id_manufacturer": "IFRIC123",
+            "ifric_id_asset": "ASSET123",
+            "asset_category": [
+                "36 Machine, apparatus",
+                "0173-1#01-AAD302#007"
+            ]
+        },
+        "machine_identification": {
+            "alias": "Machine A",
+            "product_name": "Product XYZ",
+            "asset_serial_number": "Serial123",
+            "manufacturing_year": 2023,
+            "asset_communication_protocol": "opc-ua",
+            "ce_marking": "CEMarkingData",
+            "documentation": {}
+        }
+    },
+    "parameters": {
+        "operation_conditions_runtime": {
+            "machine_state": [
+                ""
+            ],
+            "machine_state_from_smartbox": [
+                ""
+            ]
+        },
+        "operation_conditions": {
+            "ambient_operating_temperature_min": 0,
+            "ambient_operating_temperature_max": 100,
+            "relative_humidity_min": 0,
+            "relative_humidity_max": 100,
+            "atmospheric_pressure_min": 0,
+            "atmospheric_pressure_max": 100
+        }
+    }
+}
