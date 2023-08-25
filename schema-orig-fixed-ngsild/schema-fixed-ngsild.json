@@ -12,7 +12,7 @@
         },
         "allOf": [
             {
-                "$ref": "/sensor/v0.1/sensor-parameter"
+                "$ref": "/sensor/v0.1/sensor-parameter.json"
             },
             {
                 "$ref": "/sensor/v0.1/sensor-metadata"
@@ -40,7 +40,7 @@
     {
         "$schema": "http://json-schema.org/schema#",
         "$schemaVersion": "0.0.1",
-        "$id": "/sensor/v0.1/sensor-parameter",
+        "$id": "/sensor/v0.1/sensor-parameter.json",
         "title": "Sensor parameter",
         "description": "Sensor parameter",
         "type": "object",
@@ -61,10 +61,10 @@
         "properties": {
             "machine_state": {
                 "attribute": "base-objects-v0.1-operation-conditions-runtime-machine-state",
-                "type": "array",
+                "type": "string",
                 "title": "Machine Status",
                 "description": "Current status of the machine (Online_Idle, Run, Online_Error, Online_Maintenance, Setup, Testing)",
-                "default": [
+                "enum": [
                     "Online_Idle",
                     "Run",
                     "Online_Error",
@@ -77,10 +77,10 @@
             },
             "machine_state_from_smartbox": {
                 "attribute": "base-objects-v0.1-operation-conditions-runtime-machine-state-from-smartbox",
-                "type": "array",
+                "type": "string",
                 "title": "Machine Status from Smartbox",
                 "description": "Current status of the machine according to smartbox (Offline_Idle, Offline_Error, Offline_Maintenance)",
-                "default": [
+                "enum": [
                     "Offline_Idle",
                     "Offline_Error",
                     "Offline_Maintenance"

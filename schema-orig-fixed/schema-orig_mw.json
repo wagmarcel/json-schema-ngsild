@@ -349,10 +349,10 @@
         "properties": {
             "machine_state": {
                 "$id": "base-objects-v0.1-operation-conditions-runtime-machine-state",
-                "type": "array",
+                "type": "string",
                 "title": "Machine Status",
                 "description": "Current status of the machine (Online_Idle, Run, Online_Error, Online_Maintenance, Setup, Testing)",
-                "default": [
+                "enum": [
                     "Online_Idle",
                     "Run",
                     "Online_Error",
@@ -365,10 +365,10 @@
             },
             "machine_state_from_smartbox": {
                 "$id": "base-objects-v0.1-operation-conditions-runtime-machine-state-from-smartbox",
-                "type": "array",
+                "type": "string",
                 "title": "Machine Status from Smartbox",
                 "description": "Current status of the machine according to smartbox (Offline_Idle, Offline_Error, Offline_Maintenance)",
-                "default": [
+                "enum": [
                     "Offline_Idle",
                     "Offline_Error",
                     "Offline_Maintenance"

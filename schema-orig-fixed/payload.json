@@ -22,12 +22,8 @@
     },
     "parameters": {
         "operation_conditions_runtime": {
-            "machine_state": [
-                ""
-            ],
-            "machine_state_from_smartbox": [
-                ""
-            ]
+            "machine_state": "Online_Idle",
+            "machine_state_from_smartbox": "Offline_Idle"
         },
         "operation_conditions": {
             "ambient_operating_temperature_min": 0,
