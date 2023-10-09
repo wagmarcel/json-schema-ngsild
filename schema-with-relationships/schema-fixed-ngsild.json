@@ -1,0 +1,352 @@
+[
+    {
+        "$schema":  "http://json-schema.org/draft-07/schema",
+        "$schemaVersion": "0.0.1",
+        "$id": "https://www.industry-fusion.org/types/v0.1/cutter",
+        "title": "Cutter",
+        "description": "Cutter template for IFF",
+        "type": "object",
+        "group": "Machine",
+        "properties": {
+            "type": {
+                "type": "string",
+                    "enum": [
+                        "https://www.industry-fusion.org/types/v0.1/cutter"
+                    ]
+            }
+        },
+        "required": ["type"],
+        "metadata": {
+            "ttype": "cutter"
+        },
+        "allOf": [
+            {
+                "$ref": "https://www.industry-fusion.org/types/v0.1/metadata"
+            },
+            {
+                "$ref": "https://www.industry-fusion.org/base-objects/v0.1/operation-conditions-runtime"
+            },
+            {
+                "$ref": "https://www.industry-fusion.org/base-objects/v0.1/cutter/relationships"
+            }
+        ]
+    },
+    {
+        "$schema": "http://json-schema.org/schema#",
+        "$schemaVersion": "0.0.1",
+        "$id": "https://www.industry-fusion.org/types/v0.1/metadata",
+        "title": "IFF template for cutter metadata",
+        "description": "Cutter template for IFF",
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string",
+                "pattern": "^urn:[a-zA-Z0-9][a-zA-Z0-9-]{0,31}:[a-zA-Z0-9()+,\\-.:=@;$_!*']*[a-zA-Z0-9()+,\\-.:=@;$_!*']$"
+            },
+            "ifric_identification": {
+                "title": "Ifric Data",
+                "$ref": "/base-objects/v0.1/ifric-identification"
+            },
+            "machine_identification": {
+                "title": "Machine Identification Data",
+                "$ref": "/base-objects/v0.1/machine-identification"
+            }
+        },
+        "required": ["id"]
+    },
+    {
+        "$schema": "http://json-schema.org/schema#",
+        "$schemaVersion": "0.0.1",
+        "$id": "https://www.industry-fusion.org/base-objects/v0.1/cutter/relationships",
+        "title": "IFF template for cutter relationship",
+        "description": "Cutter template for IFF",
+        "type": "object",
+        "properties": {
+            "hasFilter": {
+                "title": "Filter Relationship",
+                "relationship": "https://www.industry-fusion.org/types/v0.1/filter",
+                "$ref": "/base-objects/v0.1/link"
+            }
+        }
+    },
+    {
+        "$schema": "http://json-schema.org/schema#",
+        "$schemaVersion": "0.0.1",
+        "$id": "https://www.industry-fusion.org/base-objects/v0.1/link",
+        "title": "IFF template for cutter relationship",
+        "description": "Cutter template for IFF",
+        "type": "object",
+        "properties": {
+            "object": {
+                "type": "string",
+                "pattern": "^urn:[a-zA-Z0-9][a-zA-Z0-9-]{0,31}:[a-zA-Z0-9()+,\\-.:=@;$_!*']*[a-zA-Z0-9()+,\\-.:=@;$_!*']$"
+            }
+        },
+        "required": ["object"]
+    },
+    {
+        "$schema": "http://json-schema.org/schema#",
+        "$schemaVersion": "0.0.1",
+        "$id": "https://www.industry-fusion.org/base-objects/v0.1/operation-conditions-runtime",
+        "title": "Operations Conditions",
+        "description": "Operations Conditions Runtime",
+        "type": "object",
+        "visible": false,
+        "properties": {
+            "machine_state": {
+                "attribute": "base-objects-v0.1-operation-conditions-runtime-machine-state",
+                "type": "string",
+                "title": "Machine Status",
+                "description": "Current status of the machine (Online_Idle, Run, Online_Error, Online_Maintenance, Setup, Testing)",
+                "enum": [
+                    "Online_Idle",
+                    "Run",
+                    "Online_Error",
+                    "Online_Maintenance",
+                    "Setup",
+                    "Testing"
+                ],
+                "readOnly": false,
+                "visible": false
+            },
+            "machine_state_from_smartbox": {
+                "attribute": "base-objects-v0.1-operation-conditions-runtime-machine-state-from-smartbox",
+                "type": "string",
+                "title": "Machine Status from Smartbox",
+                "description": "Current status of the machine according to smartbox (Offline_Idle, Offline_Error, Offline_Maintenance)",
+                "enum": [
+                    "Offline_Idle",
+                    "Offline_Error",
+                    "Offline_Maintenance"
+                ],
+                "readOnly": false,
+                "visible": false
+            },
+            "ambient_operating_temperature": {
+                "attribute": "base-objects-v0.1-operation-conditions-runtime-ambient-operating-temperature",
+                "type": "number",
+                "title": "Ambient operating temperature",
+                "description": "Temperature in °C",
+                "unit": "°C",
+                "readOnly": false,
+                "visible": false
+            },
+            "relative_humidity": {
+                "attribute": "base-objects-v0.1-operation-conditions-runtime-relative-humidity",
+                "type": "number",
+                "title": "Relative humidity",
+                "description": "Humidity in percentage",
+                "unit": "%",
+                "readOnly": false,
+                "visible": false
+            },
+            "atmospheric_pressure": {
+                "attribute": "base-objects-v0.1-operation-conditions-runtime-atmospheric-pressure",
+                "type": "number",
+                "title": "Atmospheric pressure",
+                "description": "Pressure in mbar",
+                "unit": "mbar",
+                "readOnly": false,
+                "visible": false
+            },
+            "dustiness": {
+                "attribute": "base-objects-v0.1-operation-conditions-runtime-dustiness",
+                "type": "number",
+                "title": "Dust Density",
+                "description": "Dust density in mg/m³",
+                "unit": "mg/m³",
+                "readOnly": false,
+                "visible": false
+            }
+        },
+        "required": [
+            "machine_state",
+            "machine_state_from_smartbox"
+        ]
+    },
+    {
+        "$schema": "http://json-schema.org/schema#",
+        "$schemaVersion": "0.0.1",
+        "$id": "https://www.industry-fusion.org/base-objects/v0.1/ifric-identification",
+        "title": "Ifric Identification",
+        "description": "Asset details related to IFRIC.",
+        "type": "object",
+        "visible": true,
+        "properties": {
+            "asset_manufacturer_name": {
+                "attribute": "base-objects-v0.1-ifric-identification-asset-manufacturer-name",
+                "type": "string",
+                "title": "Asset manufacturer name",
+                "placeholder": "Auto fill from ICID",
+                "description": "The manufacturer name is generated after the manufacturer registration",
+                "readOnly": false,
+                "visible": true
+            },
+            "urn_id": {
+                "attribute": "base-objects-v0.1-ifric-identification-urn-id",
+                "type": "string",
+                "title": "URN-ID",
+                "placeholder": "Auto fill from PDT",
+                "description": "Automatically generated by PDT (Auto Fill from PDT)",
+                "readOnly": false,
+                "visible": true
+            },
+            "ifric_id_manufacturer": {
+                "attribute": "base-objects-v0.1-ifric-identification-ifric-id-manufacturer",
+                "type": "string",
+                "title": "IFRIC-ID of manufacturer",
+                "placeholder": "Auto fill from ICID",
+                "description": "ID is generated after manufacturer registration from ICID",
+                "readOnly": false,
+                "visible": true
+            },
+            "ifric_id_asset": {
+                "attribute": "base-objects-v0.1-ifric-identification-ifric-id-asset",
+                "type": "string",
+                "title": "IFRIC-ID of asset",
+                "placeholder": "Auto fill from ICID",
+                "description": "Globally unique identifiable ID generated by ICID",
+                "readOnly": false,
+                "visible": true
+            },
+            "asset_category": {
+                "attribute": "base-objects-v0.1-ifric-identification-asset-category",
+                "type": "array",
+                "title": "Assetkategorie und ECLASS IRDI",
+                "placeholder": "Auto fill from default",
+                "description": "Assetkategorie und ECLASS IRDI",
+                "default": [
+                    "36 Machine, apparatus",
+                    "0173-1#01-AAD302#007"
+                ],
+                "readOnly": false,
+                "visible": true
+            },
+            "logo_manufacturer": {
+                "attribute": "base-objects-v0.1-ifric-identification-logo-manufacturer",
+                "type": "object",
+                "title": "Logo Manufacturer",
+                "contentEncoding": "base64",
+                "contentMediaType": "image/png",
+                "placeholder": "Auto fill from ICID",
+                "description": "Link for logo of the manufacturer",
+                "readOnly": false,
+                "visible": true
+            }
+        },
+        "required": [
+            "asset_manufacturer_name",
+            "urn_id",
+            "ifric_id_manufacturer",
+            "ifric_id_asset",
+            "asset_category"
+        ]
+    },
+    {
+        "$schema": "http://json-schema.org/schema#",
+        "$schemaVersion": "0.0.1",
+        "$id": "https://www.industry-fusion.org/base-objects/v0.1/machine-identification",
+        "title": "Machine Identification",
+        "description": "A machine can identify with this object itself.",
+        "type": "object",
+        "visible": true,
+        "properties": {
+            "alias": {
+                "attribute": "base-objects-v0.1-machine-identification-alias",
+                "type": "string",
+                "title": "Alias of the asset",
+                "placeholder": "Enter an alias for the asset",
+                "description": "Alternate name of the asset",
+                "readOnly": false,
+                "visible": true
+            },
+            "product_name": {
+                "attribute": "base-objects-v0.1-machine-identification-product-name",
+                "type": "string",
+                "title": "Manufacturer's product name",
+                "placeholder": "Enter the product name",
+                "description": "Name of the asset from the manufacturer",
+                "readOnly": false,
+                "visible": true
+            },
+            "asset_serial_number": {
+                "attribute": "base-objects-v0.1-machine-identification-asset-serial-number",
+                "type": "string",
+                "title": "Serial number",
+                "placeholder": "Enter the serial number",
+                "description": "Serial number of asset",
+                "readOnly": false,
+                "visible": true
+            },
+            "product_icon": {
+                "attribute": "base-objects-v0.1-machine-identification-product-icon",
+                "type": "object",
+                "title": "Product Icon",
+                "contentEncoding": "base64",
+                "contentMediaType": "image/png",
+                "placeholder": "Upload a product icon",
+                "description": "The production icon of the asset",
+                "readOnly": false,
+                "visible": true
+            },
+            "manufacturing_year": {
+                "attribute": "base-objects-v0.1-machine-identification-manufacturing-year",
+                "type": "number",
+                "unit": "year",
+                "title": "Year of manufacturing",
+                "description": "The manufacturer year of the asset",
+                "placeholder": "Enter the manufacturing year in YYYY format",
+                "readOnly": false,
+                "visible": true
+            },
+            "documentation": {
+                "attribute": "base-objects-v0.1-machine-identification-documentation",
+                "type": "object",
+                "title": "Manual",
+                "contentEncoding": "base64",
+                "contentMediaType": "application/pdf",
+                "description": "The legally required documentation for the machine",
+                "placeholder": "Upload the documentation in pdf format",
+                "readOnly": false,
+                "visible": true
+            },
+            "asset_communication_protocol": {
+                "attribute": "base-objects-v0.1-machine-identification-asset-communication-protocol",
+                "type": "array",
+                "title": "Communication protocol",
+                "description": "The communication protocol of the asset",
+                "placeholder": "Select a protocol",
+                "items": {
+                "enum": [
+                    "opc-ua",
+                    "mqtt",
+                    "modbus",
+                    "http"
+                ],
+                "type": "string"
+            },
+                "readOnly": false,
+                "visible": true
+            },
+            "ce_marking": {
+                "attribute": "base-objects-v0.1-machine-identification-ce-marking",
+                "type": "string",
+                "title": "CE-Marking",
+                "description": "The ce-marking of the asset",
+                "contentEncoding": "base64",
+                "contentMediaType": "application/pdf",
+                "placeholder": "Upload ce-marking documentation in pdf format",
+                "readOnly": false,
+                "visible": true
+            }
+        },
+        "required": [
+            "product_name",
+            "manufacturing_year",
+            "asset_communication_protocol",
+            "ce_marking",
+            "documentation",
+            "asset_serial_number"
+        ]
+    }
+]
