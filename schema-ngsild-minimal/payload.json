@@ -1,0 +1,32 @@
+{
+    "@context": [
+        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+        {
+            "@vocab": "https://www.industry-fusion.org/properties/v0.1/"
+        }
+       ],
+    "ifric_identificationx": {
+        "asset_manufacturer_name": "Manufacturer XYZ",
+        "urn_id": "URN123",
+        "ifric_id_manufacturer": "IFRIC123",
+        "ifric_id_asset": "ASSET123",
+        "asset_category": [
+            "36 Machine, apparatus",
+            "0173-1#01-AAD302#007"
+        ]
+    },
+    "machine_identification": {
+        "alias": "Machine A",
+        "product_name": "Product XYZ",
+        "asset_serial_number": "Serial123",
+        "manufacturing_year": 2023,
+        "asset_communication_protocol": ["opc-ua"],
+        "ce_marking": "CEMarkingData",
+        "documentation": {}
+    },
+    "machine_state": "Testing",
+    "machine_state_from_smartbox": "Offline_Idle",
+    "hasFilter": {"object": "urn:filter:1"},
+    "id": "urn:x:1",
+    "type": "https://www.industry-fusion.org/types/v0.1/cutter"
+}

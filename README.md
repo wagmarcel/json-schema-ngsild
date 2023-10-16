@@ -133,3 +133,98 @@ This can be validated by
 ```
 node validate.js -s schema-with-relationships -d schema-with-relationships payload.json -i https://www.industry-fusion.org/types/v0.1/cutter
 ```
+
+
+## Minimalized Schema for NGSI-LD (excluding GUI elements)
+
+```
+node validate.js -s schema-ngsild-minimal -d schema-ngsild-minimal/payload.json -i "https://www.industry-fusion.org/types/v0.1/cutter"
+```
+
+## E-class integration
+
+ECLASS uses IRDI's to identify types and properties. An IRDI is structured as follows:
+
+```
+RAI#DI#VI
+```
+
+- RAI is the registration authroity identifier
+- DI is the Data identifier
+- VI is the Version indentifier
+
+Examples for ECLASS IRDI'S:
+
+```
+0173-1#02-BAH754#006
+0173-1#01-AKJ975#017
+0173-1#02-AAH880#003
+```
+
+Mapping IRDI's to IRI's is not straight forward. IRDI's do not have an explicit prefix to identify the scheme like IRI's (e.g. "http", "urn")
+Therefore, IFF needs to agree on a mapping scheme. One obvious mapping scheme is to wrap the IRDI into an IRI like so:
+
+```
+https://www.industry-fusion.org/eclass/0173-1#02-AAH880#003
+```
+
+With such a mapping the eclass identifiers can be mapped to NGSI-LD objects by extending the `@context` by an `eclass` prefix:
+
+```
+  "@context": [
+        "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+        {
+            "@vocab": "https://www.industry-fusion.org/properties/v0.1/",
+            "eclass": {
+                "@id": "https://www.industry-fusion.org/eclass/",
+                "@prefix": true
+            }
+        }
+    ]
+```
+
+
+Given the `@context`, the object containing `eclass` and normal fields can be described as follows:
+```
+{
+    "machine_state": "Testing",
+    "hasFilter": {
+        "object": "urn:filter:1"
+    },
+    "eclass:0173-1#02-AAH880#003": "10",
+    "id": "urn:x:1",
+    "type": "eclass:0173-1#01-AKJ975#017"
+}
+```
+
+The expanded `JSON-LD` object looks like:
+
+```
+[
+  {
+    "https://www.industry-fusion.org/eclass/0173-1#02-AAH880#003": [
+      {
+        "@value": "10"
+      }
+    ],
+    "https://www.industry-fusion.org/properties/v0.1/hasFilter": [
+      {
+        "https://uri.etsi.org/ngsi-ld/hasObject": [
+          {
+            "@id": "urn:filter:1"
+          }
+        ]
+      }
+    ],
+    "@id": "urn:x:1",
+    "https://www.industry-fusion.org/properties/v0.1/machine_state": [
+      {
+        "@value": "Testing"
+      }
+    ],
+    "@type": [
+      "https://www.industry-fusion.org/eclass/0173-1#01-AKJ975#017"
+    ]
+  }
+]
+```
