@@ -228,3 +228,9 @@ The expanded `JSON-LD` object looks like:
   }
 ]
 ```
+
+Validation of the eclass object works as follows:
+
+```
+node validate.js -s schema-ngsild-eclass/ -d schema-ngsild-eclass/payload.json -i "https://www.industry-fusion.org/eclass:0173-1#01-AKJ975#017"
+```

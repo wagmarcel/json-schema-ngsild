@@ -1,0 +1,118 @@
+[
+    {
+        "$schema":  "http://json-schema.org/draft-07/schema",
+        "$id": "https://www.industry-fusion.org/eclass:0173-1#01-AKJ975#017",
+        "title": "Cutter",
+        "description": "Cutter template for IFF",
+        "type": "object",
+        "properties": {
+           "type": {
+            "const": "eclass:0173-1#01-AKJ975#017"
+            }
+        },
+        "required": ["type"],
+        "allOf": [
+            {
+                "$ref": "https://www.industry-fusion.org/base-objects/v0.1/operation-conditions-runtime"
+            },
+            {
+                "$ref": "https://www.industry-fusion.org/base-objects/v0.1/cutter/relationships"
+            }
+        ]
+    },
+    {
+        "$schema": "http://json-schema.org/schema#",
+        "$id": "https://www.industry-fusion.org/base-objects/v0.1/cutter/relationships",
+        "title": "IFF template for cutter relationship",
+        "description": "Cutter template for IFF",
+        "type": "object",
+        "properties": {
+            "hasFilter": {
+                "relationship": "https://www.industry-fusion.org/types/v0.1/filter",
+                "$ref": "/base-objects/v0.1/link"
+            }
+        }
+    },
+    {
+        "$schema": "http://json-schema.org/schema#",
+        "$id": "https://www.industry-fusion.org/base-objects/v0.1/link",
+        "title": "IFF template for cutter relationship",
+        "description": "Cutter template for IFF",
+        "type": "object",
+        "properties": {
+            "object": {
+                "type": "string",
+                "pattern": "^urn:[a-zA-Z0-9][a-zA-Z0-9-]{0,31}:[a-zA-Z0-9()+,\\-.:=@;$_!*']*[a-zA-Z0-9()+,\\-.:=@;$_!*']$"
+            }
+        },
+        "required": ["object"]
+    },
+    {
+        "$schema": "http://json-schema.org/schema#",
+        "$id": "https://www.industry-fusion.org/base-objects/v0.1/operation-conditions-runtime",
+        "title": "Operations Conditions",
+        "description": "Operations Conditions Runtime",
+        "type": "object",
+        "properties": {
+            "machine_state": {
+                "type": "string",
+                "title": "Machine Status",
+                "description": "Current status of the machine (Online_Idle, Run, Online_Error, Online_Maintenance, Setup, Testing)",
+                "enum": [
+                    "Online_Idle",
+                    "Run",
+                    "Online_Error",
+                    "Online_Maintenance",
+                    "Setup",
+                    "Testing"
+                ]
+            },
+            "machine_state_from_smartbox": {
+                "type": "string",
+                "title": "Machine Status from Smartbox",
+                "description": "Current status of the machine according to smartbox (Offline_Idle, Offline_Error, Offline_Maintenance)",
+                "enum": [
+                    "Offline_Idle",
+                    "Offline_Error",
+                    "Offline_Maintenance"
+                ]
+            },
+            "ambient_operating_temperature": {
+                "type": "number",
+                "title": "Ambient operating temperature",
+                "description": "Temperature in °C",
+                "unit": "°C"
+            },
+            "relative_humidity": {
+                "type": "number",
+                "title": "Relative humidity",
+                "description": "Humidity in percentage",
+                "unit": "%"
+            },
+            "atmospheric_pressure": {
+                "type": "number",
+                "title": "Atmospheric pressure",
+                "description": "Pressure in mbar",
+                "unit": "mbar"
+            },
+            "dustiness": {
+                "type": "number",
+                "title": "Dust Density",
+                "description": "Dust density in mg/m³",
+                "unit": "mg/m³"
+            },
+            "eclass:0173-1#02-AAH880#003": {
+                "type": "string",
+                "datatype": "double",
+                "title": "min. cutting current",
+                "description": "specification of the minimum cutting current",
+                "unit": "A"
+            }
+        },
+        "required": [
+            "machine_state",
+            "machine_state_from_smartbox",
+            "eclass:0173-1#02-AAH880#003"
+        ]
+    }
+]
