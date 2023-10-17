@@ -234,3 +234,23 @@ Validation of the eclass object works as follows:
 ```
 node validate.js -s schema-ngsild-eclass/ -d schema-ngsild-eclass/payload.json -i "https://www.industry-fusion.org/eclass:0173-1#01-AKJ975#017"
 ```
+
+`ECLASS` provides additional data for every `IRDI` which can be added/mapped to `JSON-Schema`:
+
+- `Preferred Name` is mapped to `title` field
+- `Definition` is mapped to `description` field
+- The unit symbol of `Unit` is mapped to `unit` field
+- `Type` of the field is mapped to `datatype` and xsd-type as described [here](https://eclass.eu/support/technical-specification/data-model/datatype-to-xsd-mapping)
+- The `JSON` `type` field of every `ECLASS` property is `string`.
+
+For [example](./schema-ngsild-eclass/schema.json), the `ECLASS` property `` is described in the `JSON-Schema` as:
+
+```
+ "eclass:0173-1#02-AAH880#003": {
+                "type": "string",
+                "datatype": "double",
+                "title": "min. cutting current",
+                "description": "specification of the minimum cutting current",
+                "unit": "A"
+            }
+```
