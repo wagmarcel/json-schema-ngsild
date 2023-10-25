@@ -1,7 +1,7 @@
 [
     {
         "$schema":  "http://json-schema.org/draft-07/schema",
-        "$id": "https://www.industry-fusion.org/eclass:0173-1#01-AKJ975#017",
+        "$id": "https://industry-fusion.org/eclass:0173-1#01-AKJ975#017",
         "title": "Cutter",
         "description": "Cutter template for IFF",
         "type": "object",
@@ -13,29 +13,29 @@
         "required": ["type"],
         "allOf": [
             {
-                "$ref": "https://www.industry-fusion.org/base-objects/v0.1/operation-conditions-runtime"
+                "$ref": "https://industry-fusion.org/base-objects/v0.1/operation-conditions-runtime"
             },
             {
-                "$ref": "https://www.industry-fusion.org/base-objects/v0.1/cutter/relationships"
+                "$ref": "https://industry-fusion.org/base-objects/v0.1/cutter/relationships"
             }
         ]
     },
     {
-        "$schema": "http://json-schema.org/schema#",
-        "$id": "https://www.industry-fusion.org/base-objects/v0.1/cutter/relationships",
+        "$schema": "http://json-schema.org/draft-07/schema",
+        "$id": "https://industry-fusion.org/base-objects/v0.1/cutter/relationships",
         "title": "IFF template for cutter relationship",
         "description": "Cutter template for IFF",
         "type": "object",
         "properties": {
             "hasFilter": {
-                "relationship": "https://www.industry-fusion.org/types/v0.1/filter",
-                "$ref": "/base-objects/v0.1/link"
+                "relationship": "iffb:filter",
+                "$ref": "https://industry-fusion.org/base-objects/v0.1/link"
             }
         }
     },
     {
-        "$schema": "http://json-schema.org/schema#",
-        "$id": "https://www.industry-fusion.org/base-objects/v0.1/link",
+        "$schema": "http://json-schema.org/draft-07/schema",
+        "$id": "https://industry-fusion.org/base-objects/v0.1/link",
         "title": "IFF template for cutter relationship",
         "description": "Cutter template for IFF",
         "type": "object",
@@ -48,8 +48,8 @@
         "required": ["object"]
     },
     {
-        "$schema": "http://json-schema.org/schema#",
-        "$id": "https://www.industry-fusion.org/base-objects/v0.1/operation-conditions-runtime",
+        "$schema": "http://json-schema.org/draft-07/schema",
+        "$id": "https://industry-fusion.org/base-objects/v0.1/operation-conditions-runtime",
         "title": "Operations Conditions",
         "description": "Operations Conditions Runtime",
         "type": "object",
@@ -103,7 +103,7 @@
             },
             "eclass:0173-1#02-AAH880#003": {
                 "type": "string",
-                "datatype": "double",
+                "datatype": "xsd:double",
                 "title": "min. cutting current",
                 "description": "specification of the minimum cutting current",
                 "unit": "A"

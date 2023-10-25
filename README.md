@@ -202,12 +202,12 @@ The expanded `JSON-LD` object looks like:
 ```
 [
   {
-    "https://www.industry-fusion.org/eclass/0173-1#02-AAH880#003": [
+    "https://industry-fusion.org/eclass/0173-1#02-AAH880#003": [
       {
         "@value": "10"
       }
     ],
-    "https://www.industry-fusion.org/properties/v0.1/hasFilter": [
+    "https://industry-fusion.org/base/v0.1/hasFilter": [
       {
         "https://uri.etsi.org/ngsi-ld/hasObject": [
           {
@@ -217,13 +217,18 @@ The expanded `JSON-LD` object looks like:
       }
     ],
     "@id": "urn:x:1",
-    "https://www.industry-fusion.org/properties/v0.1/machine_state": [
+    "https://industry-fusion.org/base/v0.1/machine_state": [
       {
         "@value": "Testing"
       }
     ],
+    "https://industry-fusion.org/base/v0.1/machine_state_from_smartbox": [
+      {
+        "@value": "Offline_Idle"
+      }
+    ],
     "@type": [
-      "https://www.industry-fusion.org/eclass/0173-1#01-AKJ975#017"
+      "https://industry-fusion.org/eclass/0173-1#01-AKJ975#017"
     ]
   }
 ]
