@@ -22,8 +22,16 @@ const path = require('path')
 const N3 = require('n3');
 const { DataFactory } = N3;
 const { namedNode, literal, blankNode, defaultGraph, quad } = DataFactory;
+const { URL } = require('url'); // Import the URL module
+const ContextParser = require('jsonld-context-parser').ContextParser;
+const ContextUtil = require('jsonld-context-parser').Util;
+const myParser = new ContextParser();
 
+
+const rdf_ns = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+const iffk_ns = "https://industry-fusion.org/knowledge/v0.1/"
 const shacl_ns = "http://www.w3.org/ns/shacl#"
+const rdf_type = namedNode(rdf_ns + 'type');
 const shacl_in = namedNode(shacl_ns +'in');
 const shacl_Literal = namedNode(shacl_ns +'Literal');
 const shacl_IRI = namedNode(shacl_ns +'IRI');
@@ -31,6 +39,12 @@ const shacl_BlankNode = namedNode(shacl_ns +'BlankNode');
 const shacl_datatype = namedNode(shacl_ns +'datatype');
 const shacl_class = namedNode(shacl_ns +'class');
 const shacl_nodeKind = namedNode(shacl_ns +'nodeKind');
+const shacl_NodeShape = namedNode(shacl_ns +'NodeShape');
+const shacl_maxInclusive = namedNode(shacl_ns +'maxInclusive');
+const shacl_minInclusive = namedNode(shacl_ns +'minInclusive');
+const shacl_maxExclusive = namedNode(shacl_ns +'maxExclusive');
+const shacl_minExclusive = namedNode(shacl_ns +'minExclusive');
+const shacl_targetClass = namedNode(shacl_ns +'targetClass');
 const argv = yargs
   .command('$0', 'Converting an IFF Schema file for NGSI-LD objects into a SHACL constraint.')
   .option('schema', {
@@ -45,6 +59,12 @@ const argv = yargs
     demandOption: true,
     type: 'string'
   })
+  .option('context', {
+    alias: 'c',
+    description: 'JSON-LD-Context',
+    demandOption: true,
+    type: 'string'
+  })
   .help()
   .alias('help', 'h')
   .argv
@@ -52,6 +72,7 @@ const argv = yargs
 // Read in an array of JSON-Schemas
 const jsonSchemaText = fs.readFileSync(argv.s, 'utf8');
 const jsonSchema = JSON.parse(jsonSchemaText);
+var global_context;
 
 
 class NodeShape {
@@ -63,6 +84,7 @@ class NodeShape {
         this.properties.push(propertyShape)
     }
 }
+
 
 class PropertyShape {
     constructor(mincount, maxcount, nodeKind, path) {
@@ -83,6 +105,7 @@ class Constraint {
         this.params = params
     }
 }
+
 
 function scanNodeShape(typeschema) {
     const id = typeschema["$id"];
@@ -142,17 +165,72 @@ function scanConstraints(propertyShape, typeschema){
     if ("datatype" in typeschema){
         propertyShape.addConstraint(new Constraint(shacl_datatype, typeschema.datatype))
     }
- 
+    if ("maxiumum" in typeschema){
+        propertyShape.addConstraint(new Constraint(shacl_maxInclusive, typeschema.maximum))
+    }
+    if ("miniumum" in typeschema){
+        propertyShape.addConstraint(new Constraint(shacl_minInclusive, typeschema.minimum))
+    }
+    if ("exclusiveMiniumum" in typeschema){
+        propertyShape.addConstraint(new Constraint(shacl_minExclusive, typeschema.exclusiveMinimum))
+    }
+    if ("exclusiveMaxiumum" in typeschema){
+        propertyShape.addConstraint(new Constraint(shacl_maxExclusive, typeschema.exclusiveMaximum))
+    }
+    if ("maxLength" in typeschema){
+        propertyShape.addConstraint(new Constraint(shacl_maxLength, typeschema.maxLength))
+    }
+    if ("minLength" in typeschema){
+        propertyShape.addConstraint(new Constraint(shacl_minLength, typeschema.minLength))
+    }
 }
+
+
+function dumpShacl(nodeShape, writer){
+    dumpNodeShape(nodeShape, writer)
+}
+
+
+function dumpNodeShape(nodeShape, writer){
+    var nodeName = global_context.expandTerm(nodeShape.targetClass);
+    writer.addQuad(namedNode(nodeName), rdf_type, shacl_NodeShape);
+    writer.addQuad(namedNode(nodeName), shacl_targetClass, namedNode(nodeName));
+}
+
 
 function shaclize(schemas, id) {
     const writer = new N3.Writer({ prefixes: { c: 'http://example.org/cartoons#',
                                        foaf: 'http://xmlns.com/foaf/0.1/' } });
     const typeschema = schemas.find((schema) => schema.$id == id)
-    console.log("typeschema" + JSON.stringify(typeschema))
+    //console.log("typeschema" + JSON.stringify(typeschema))
     //find all properties
     var nodeShape = scanNodeShape(typeschema)
+
+    dumpShacl(nodeShape, writer)
 }
+
+
+async function loadContext(filename) {
+    const contextFile = JSON.parse(fs.readFileSync(filename, 'utf-8'));
+    const context = await myParser.parse(contextFile);
+    global_context = context;
+    const prefix_hash = {}
+    Object.keys(context.getContextRaw()).forEach((key) => {
+        const value = context.getContextRaw()[key]
+        if (typeof value === "string"){
+            if (ContextUtil.isPrefixIriEndingWithGenDelim(value)) {
+                prefix_hash[key] = value;
+            }
+        }
+        else if (typeof value === "object") {
+            if (ContextUtil.isPrefixIriEndingWithGenDelim(value['@id'])) {
+                prefix_hash[key] = value['@id'];
+            }
+        }
+    })
+    return;
+}
+
 
 (async (jsconSchema) => {
     let myResolver = {
@@ -186,5 +264,6 @@ function shaclize(schemas, id) {
         console.error(err);
     }
 })(jsonSchema)
+.then(async(schema) => {await loadContext(argv.c); return schema;})
 //.then((schema) => {console.log(JSON.stringify(schema)); return schema;})
 .then((schema => {shaclize(schema, argv.i)}))
