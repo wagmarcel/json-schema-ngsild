@@ -16,10 +16,12 @@
 'use strict'
 
 const $RefParser = require('json-schema-ref-parser');
+var $rdf = require('rdflib');
 const fs = require('fs')
 const yargs = require('yargs')
 const path = require('path')
 const N3 = require('n3');
+const url = require('url');
 const { DataFactory } = N3;
 const { namedNode, literal, blankNode, defaultGraph, quad } = DataFactory;
 const { URL } = require('url'); // Import the URL module
@@ -28,23 +30,9 @@ const ContextUtil = require('jsonld-context-parser').Util;
 const myParser = new ContextParser();
 
 
-const rdf_ns = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-const iffk_ns = "https://industry-fusion.org/knowledge/v0.1/"
-const shacl_ns = "http://www.w3.org/ns/shacl#"
-const rdf_type = namedNode(rdf_ns + 'type');
-const shacl_in = namedNode(shacl_ns +'in');
-const shacl_Literal = namedNode(shacl_ns +'Literal');
-const shacl_IRI = namedNode(shacl_ns +'IRI');
-const shacl_BlankNode = namedNode(shacl_ns +'BlankNode');
-const shacl_datatype = namedNode(shacl_ns +'datatype');
-const shacl_class = namedNode(shacl_ns +'class');
-const shacl_nodeKind = namedNode(shacl_ns +'nodeKind');
-const shacl_NodeShape = namedNode(shacl_ns +'NodeShape');
-const shacl_maxInclusive = namedNode(shacl_ns +'maxInclusive');
-const shacl_minInclusive = namedNode(shacl_ns +'minInclusive');
-const shacl_maxExclusive = namedNode(shacl_ns +'maxExclusive');
-const shacl_minExclusive = namedNode(shacl_ns +'minExclusive');
-const shacl_targetClass = namedNode(shacl_ns +'targetClass');
+const RDF = $rdf.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#');
+const SHACL = $rdf.Namespace('http://www.w3.org/ns/shacl#');
+const IFFK = $rdf.Namespace('https://industry-fusion.org/knowledge/v0.1/');
 const argv = yargs
   .command('$0', 'Converting an IFF Schema file for NGSI-LD objects into a SHACL constraint.')
   .option('schema', {
@@ -73,6 +61,7 @@ const argv = yargs
 const jsonSchemaText = fs.readFileSync(argv.s, 'utf8');
 const jsonSchema = JSON.parse(jsonSchemaText);
 var global_context;
+var global_prefix_hash;
 
 
 class NodeShape {
@@ -83,19 +72,32 @@ class NodeShape {
     addPropertyShape(propertyShape){
         this.properties.push(propertyShape)
     }
+    get properties(){
+        return this._properties;
+    }
+    set properties(prop){
+        this._properties = prop;
+    }
 }
 
 
 class PropertyShape {
-    constructor(mincount, maxcount, nodeKind, path) {
+    constructor(mincount, maxcount, nodeKind, path, isProperty) {
         this.mincount = mincount;
         this.maxcount = maxcount;
         this.nodeKind = nodeKind;
         this.path = path;
         this.constraints = [];
+        this.isProperty = isProperty;
     }
     addConstraint(constraint){
         this.constraints.push(constraint)
+    }
+    set propertyNode(node){
+        this._propertyNode = node;
+    }
+    get propertyNode(){
+        return this._propertyNode;
     }
 }
 
@@ -127,11 +129,15 @@ function scanProperties(nodeShape, typeschema) {
                 if (property == 'type'){
                     return
                 }
-                var nodeKind = shacl_Literal;
+                var nodeKind = SHACL('Literal');
                 var klass = null;
+                var isProperty = true;
                 if ("relationship" in typeschema.properties[property]){
-                    nodeKind = shacl_IRI;
-                    klass = property.relationship;
+                    nodeKind = SHACL('IRI');
+                    klass = typeschema.properties[property]["relationship"];
+                    
+                    klass = global_context.expandTerm(klass, true);
+                    isProperty = false;
                 }
                 var mincount = 0
                 var maxcount = 1
@@ -139,13 +145,14 @@ function scanProperties(nodeShape, typeschema) {
                     mincount = 1;
                 }
                 var path = property;
-                if (path.indexOf(':') == -1) {
-                    path = ':' + path;
+                if (!ContextUtil.isValidIri(path)) {
+                    path = global_context.expandTerm(path, true);
+                    //global_prefix_hash['@vocab'] + path;
                 }
-                var propertyShape = new PropertyShape(mincount, maxcount, nodeKind, path);
+                var propertyShape = new PropertyShape(mincount, maxcount, nodeKind, $rdf.sym(path), isProperty);
                 nodeShape.addPropertyShape(propertyShape);
                 if (klass !== null) {
-                    propertyShape.addConstraint(new Constraint(shacl_class, klass))
+                    propertyShape.addConstraint(new Constraint(SHACL('class'), klass));
                 }
                 scanConstraints(propertyShape, typeschema.properties[property])
             })
@@ -160,53 +167,91 @@ function scanProperties(nodeShape, typeschema) {
 
 function scanConstraints(propertyShape, typeschema){
     if ("enum" in typeschema) {
-        propertyShape.addConstraint(new Constraint(shacl_in, typeschema.enum))
+        propertyShape.addConstraint(new Constraint(SHACL('in'), typeschema.enum))
     }
     if ("datatype" in typeschema){
-        propertyShape.addConstraint(new Constraint(shacl_datatype, typeschema.datatype))
+        propertyShape.addConstraint(new Constraint(SHACL('datatype'), typeschema.datatype))
     }
     if ("maxiumum" in typeschema){
-        propertyShape.addConstraint(new Constraint(shacl_maxInclusive, typeschema.maximum))
+        propertyShape.addConstraint(new Constraint(SHACL('maxInclusive'), typeschema.maximum))
     }
     if ("miniumum" in typeschema){
-        propertyShape.addConstraint(new Constraint(shacl_minInclusive, typeschema.minimum))
+        propertyShape.addConstraint(new Constraint(SHACL('minInclusive'), typeschema.minimum))
     }
     if ("exclusiveMiniumum" in typeschema){
-        propertyShape.addConstraint(new Constraint(shacl_minExclusive, typeschema.exclusiveMinimum))
+        propertyShape.addConstraint(new Constraint(SHACL('minExclusive'), typeschema.exclusiveMinimum))
     }
     if ("exclusiveMaxiumum" in typeschema){
-        propertyShape.addConstraint(new Constraint(shacl_maxExclusive, typeschema.exclusiveMaximum))
+        propertyShape.addConstraint(new Constraint(SHACL('maxExclusive'), typeschema.exclusiveMaximum))
     }
     if ("maxLength" in typeschema){
-        propertyShape.addConstraint(new Constraint(shacl_maxLength, typeschema.maxLength))
+        propertyShape.addConstraint(new Constraint(SHACL('maxLength'), typeschema.maxLength))
     }
     if ("minLength" in typeschema){
-        propertyShape.addConstraint(new Constraint(shacl_minLength, typeschema.minLength))
+        propertyShape.addConstraint(new Constraint(SHACL('minLength'), typeschema.minLength))
     }
 }
 
 
-function dumpShacl(nodeShape, writer){
-    dumpNodeShape(nodeShape, writer)
+function dumpShacl(nodeShape, store){
+    dumpNodeShape(nodeShape, store)
 }
 
 
-function dumpNodeShape(nodeShape, writer){
+function dumpNodeShape(nodeShape, store){
     var nodeName = global_context.expandTerm(nodeShape.targetClass);
-    writer.addQuad(namedNode(nodeName), rdf_type, shacl_NodeShape);
-    writer.addQuad(namedNode(nodeName), shacl_targetClass, namedNode(nodeName));
+    const parsedUrl = url.parse(nodeName, true);
+    const fragment = parsedUrl.hash.substring(1);
+    const shapeName = fragment + "Shape";
+    store.add(IFFK(shapeName), RDF('type'), SHACL('NodeShape'));
+    store.add(IFFK(shapeName), SHACL('targetClass'), $rdf.sym(nodeName));
+    nodeShape.properties.forEach((property) => {
+        const propNode = $rdf.blankNode();
+        property.propertyNode = propNode;
+        store.add(IFFK(shapeName), SHACL('property'), propNode)
+        dumpPropertyShape(property, store)
+    })
 }
 
+
+function dumpPropertyShape(propertyShape, store){
+    const propNode = propertyShape.propertyNode;
+    store.add(propNode, SHACL('minCount'), propertyShape.mincount);
+    store.add(propNode, SHACL('maxCount'), propertyShape.maxcount);
+    store.add(propNode, SHACL('nodeKind'), SHACL('BlankNode'));
+    store.add(propNode, SHACL('path'), propertyShape.path);
+    const attributeNode = $rdf.blankNode();
+    store.add(propNode, SHACL('property'), attributeNode);
+    const ngsildPrefix = global_prefix_hash['ngsi-ld'];
+    const NGSILD = $rdf.Namespace(ngsildPrefix)
+    if (propertyShape.isProperty){
+        store.add(attributeNode, SHACL('path'), NGSILD('hasValue'));
+    } else {
+        store.add(attributeNode, SHACL('path'), NGSILD('hasObject'));
+    }
+    store.add(attributeNode, SHACL('minCount'), 1);
+    store.add(attributeNode, SHACL('maxCount'), 1);
+    store.add(attributeNode, SHACL('nodeKind'), propertyShape.nodeKind);
+    const constraints = propertyShape.constraints;
+    constraints.forEach((constraint) => {
+        store.add(attributeNode, constraint.type, constraint.params);
+    })
+
+}
 
 function shaclize(schemas, id) {
-    const writer = new N3.Writer({ prefixes: { c: 'http://example.org/cartoons#',
-                                       foaf: 'http://xmlns.com/foaf/0.1/' } });
+    //const writer = new N3.Writer({ prefixes: global_prefix_hash });
+    var store = new $rdf.IndexedFormula();
     const typeschema = schemas.find((schema) => schema.$id == id)
     //console.log("typeschema" + JSON.stringify(typeschema))
-    //find all properties
+    //find all properties    
     var nodeShape = scanNodeShape(typeschema)
 
-    dumpShacl(nodeShape, writer)
+    dumpShacl(nodeShape, store)
+    const serializer = new $rdf.Serializer(store);
+    serializer.setFlags('u')
+    const turtle = serializer.statementsToN3(store.statementsMatching(undefined, undefined, undefined, undefined));
+    console.log(turtle);
 }
 
 
@@ -228,6 +273,7 @@ async function loadContext(filename) {
             }
         }
     })
+    global_prefix_hash = prefix_hash;
     return;
 }
 
@@ -237,13 +283,11 @@ async function loadContext(filename) {
         order: 1,
     
         canRead: function (file) {
-            console.log("CanRead " + JSON.stringify(file));
             return true;
         },
    
         read: function (file, callback, $refs) {
     
-            console.log("$ref" + JSON.stringify(file) + $refs)
             return jsonSchema.find((schema) => schema.$id == file.url)
         }
     };
@@ -254,7 +298,6 @@ async function loadContext(filename) {
             test: myResolver
         }
     };
-    console.log("hello")
     try {
         let schema = await $RefParser.dereference(jsonSchema, options);
         //console.log(JSON.stringify(schema));
@@ -265,5 +308,4 @@ async function loadContext(filename) {
     }
 })(jsonSchema)
 .then(async(schema) => {await loadContext(argv.c); return schema;})
-//.then((schema) => {console.log(JSON.stringify(schema)); return schema;})
 .then((schema => {shaclize(schema, argv.i)}))
