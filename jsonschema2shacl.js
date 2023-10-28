@@ -250,6 +250,7 @@ function shaclize(schemas, id) {
     dumpShacl(nodeShape, store)
     const serializer = new $rdf.Serializer(store);
     serializer.setFlags('u')
+    serializer.setNamespaces(global_prefix_hash);
     const turtle = serializer.statementsToN3(store.statementsMatching(undefined, undefined, undefined, undefined));
     console.log(turtle);
 }
@@ -260,7 +261,7 @@ async function loadContext(filename) {
     const context = await myParser.parse(contextFile);
     global_context = context;
     const prefix_hash = {}
-    Object.keys(context.getContextRaw()).forEach((key) => {
+    Object.keys(context.getContextRaw()).filter((key) => key !== '@vocab').forEach((key) => {
         const value = context.getContextRaw()[key]
         if (typeof value === "string"){
             if (ContextUtil.isPrefixIriEndingWithGenDelim(value)) {
