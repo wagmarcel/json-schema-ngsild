@@ -42,6 +42,18 @@ const argv = yargs
     demandOption: false,
     type: 'string'
   })
+  .option('expand', {
+    alias: 'x',
+    description: 'Create expanded from',
+    demandOption: false,
+    type: 'string'
+  })
+  .option('normalize', {
+    alias: 'r',
+    description: 'Create normalized from',
+    demandOption: false,
+    type: 'string'
+  })
   .option('context', {
     alias: 'c',
     description: 'JSON-LD-Context',
@@ -57,6 +69,20 @@ const jsonFileName = argv['_'][0];
 const jsonText = fs.readFileSync(jsonFileName, 'utf8');
 const jsonObj = JSON.parse(jsonText);
 var jsonArr;
+
+
+if (!(argv.x === undefined) && !(argv.n === undefined)) {
+    console.error("Expand and Concise are mutally exclusive. Bye!")
+    process.exit(1)
+}
+if (!(argv.r === undefined) && !(argv.n === undefined)) {
+    console.error("Normalized and Concise are mutally exclusive. Bye!")
+    process.exit(1)
+}
+if (!(argv.x === undefined) && !(argv.r === undefined)) {
+    console.error("Normalized and Expanded are mutally exclusive. Bye!")
+    process.exit(1)
+}
 
 if (!Array.isArray(jsonObj)){
     jsonArr = [jsonObj]
@@ -159,6 +185,35 @@ function conciseExpandedForm(expanded) {
 }
 
 
+function normalizeExpandedForm(expanded) {
+    function extendAttribute(attr) {
+        if (typeof(attr) === 'object') {
+            if (!("@type" in attr)) {
+                if ("https://uri.etsi.org/ngsi-ld/hasValue" in attr || "@value" in attr) {
+                    attr["@type"] = "https://uri.etsi.org/ngsi-ld/Property"
+                } else if (!("https://uri.etsi.org/ngsi-ld/hasObject" in attr)) {
+                    attr["@type"] = "https://uri.etsi.org/ngsi-ld/Relationship"
+                }
+                if ("@value" in attr) {
+                    attr["https://uri.etsi.org/ngsi-ld/hasValue"] = attr["@value"]
+                    delete attr["@value"]
+                }
+            }
+        }
+    }
+    expanded.forEach(c => {
+        Object.keys(c).forEach(key => {
+            if (Array.isArray(c[key])) {
+                c[key].forEach(a => extendAttribute(a))
+            } else {
+                extendAttribute(c[key])
+            }
+        })
+    })
+    return expanded;
+}
+
+
 async function expand(objArr, contextArr) {
     const expanded = await Promise.all(objArr.map(async(jsonObj, index) => {
         jsonObj['@context'] = contextArr[index];
@@ -185,9 +240,28 @@ async function compact(objArr, contextArr) {
         const expanded = await expand(jsonArr, mergedContexts);
         const concised = conciseExpandedForm(expanded);
         const compacted = await compact(concised, mergedContexts);
-        //const concisedAmdcompacted = await Promise.all(compacted.map(async(jsonObj, index) => jsonld.compact(jsonObj, mergedContexts[index])));
         console.log(JSON.stringify(compacted, null, 2));
-    
+    }
+    if (!(argv.x === undefined)) {
+        const mergedContexts = mergeContexts(jsonArr, argv.c);
+        if (mergedContexts !== undefined && mergedContexts.find(x => x === null)) {
+            console.error("Error: For Extraction, context must be either defined in all objects or externally. Exiting!");
+            process.exit(1);
+        }
+        const expanded = await expand(jsonArr, mergedContexts);
+        console.log(JSON.stringify(expanded, null, 2));
+    }
+    if (!(argv.r === undefined)) {
+        const mergedContexts = mergeContexts(jsonArr, argv.c);
+        if (mergedContexts !== undefined && mergedContexts.find(x => x === null)) {
+            console.error("Error: For Normalization, context must be either defined in all objects or externally. Exiting!");
+            process.exit(1);
+        }
+        const expanded = await expand(jsonArr, mergedContexts);
+        console.log(JSON.stringify(expanded, null, 2));
+        const normalized = normalizeExpandedForm(expanded);
+        const compacted = await compact(normalized, mergedContexts);
+        console.log(JSON.stringify(compacted, null, 2));
     }
 
  })(jsonArr)
