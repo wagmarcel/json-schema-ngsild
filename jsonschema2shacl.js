@@ -170,6 +170,8 @@ function scanConstraints(propertyShape, typeschema){
         propertyShape.addConstraint(new Constraint(SHACL('in'), typeschema.enum))
     }
     if ("datatype" in typeschema){
+        // datatype constraints are not used actively. It is not testing the value but only checks if the formal
+        // datatype "tag" conforms
         // propertyShape.addConstraint(new Constraint(SHACL('datatype'), typeschema.datatype))
     }
     if ("maxiumum" in typeschema){

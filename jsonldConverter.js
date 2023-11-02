@@ -83,6 +83,11 @@ if (!(argv.x === undefined) && !(argv.r === undefined)) {
     console.error("Normalized and Expanded are mutally exclusive. Bye!")
     process.exit(1)
 }
+if (argv.x === undefined && argv.r === undefined && argv.n === undefined) {
+    console.error("No processing switch selected. Bye!")
+    process.exit(1)
+}
+
 
 if (!Array.isArray(jsonObj)){
     jsonArr = [jsonObj]
@@ -191,7 +196,7 @@ function normalizeExpandedForm(expanded) {
             if (!("@type" in attr)) {
                 if ("https://uri.etsi.org/ngsi-ld/hasValue" in attr || "@value" in attr || "@id" in attr) {
                     attr["@type"] = "https://uri.etsi.org/ngsi-ld/Property"
-                } else if (!("https://uri.etsi.org/ngsi-ld/hasObject" in attr)) {
+                } else if ("https://uri.etsi.org/ngsi-ld/hasObject" in attr) {
                     attr["@type"] = "https://uri.etsi.org/ngsi-ld/Relationship"
                 }
                 if ("@value" in attr) {
