@@ -189,7 +189,7 @@ function normalizeExpandedForm(expanded) {
     function extendAttribute(attr) {
         if (typeof(attr) === 'object') {
             if (!("@type" in attr)) {
-                if ("https://uri.etsi.org/ngsi-ld/hasValue" in attr || "@value" in attr) {
+                if ("https://uri.etsi.org/ngsi-ld/hasValue" in attr || "@value" in attr || "@id" in attr) {
                     attr["@type"] = "https://uri.etsi.org/ngsi-ld/Property"
                 } else if (!("https://uri.etsi.org/ngsi-ld/hasObject" in attr)) {
                     attr["@type"] = "https://uri.etsi.org/ngsi-ld/Relationship"
@@ -197,6 +197,9 @@ function normalizeExpandedForm(expanded) {
                 if ("@value" in attr) {
                     attr["https://uri.etsi.org/ngsi-ld/hasValue"] = attr["@value"]
                     delete attr["@value"]
+                } else if ("@id" in attr) {
+                    attr["https://uri.etsi.org/ngsi-ld/hasValue"] = {"@id": attr["@id"]}
+                    delete attr["@id"]
                 }
             }
         }
@@ -258,7 +261,6 @@ async function compact(objArr, contextArr) {
             process.exit(1);
         }
         const expanded = await expand(jsonArr, mergedContexts);
-        console.log(JSON.stringify(expanded, null, 2));
         const normalized = normalizeExpandedForm(expanded);
         const compacted = await compact(normalized, mergedContexts);
         console.log(JSON.stringify(compacted, null, 2));

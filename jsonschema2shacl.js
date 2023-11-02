@@ -256,9 +256,12 @@ function shaclize(schemas, id) {
 }
 
 
-async function loadContext(filename) {
-    const contextFile = JSON.parse(fs.readFileSync(filename, 'utf-8'));
-    const context = await myParser.parse(contextFile);
+async function loadContext(uri) {
+    const parseUrl = url.parse(uri, true);
+    if (parseUrl.protocol === "file:") {
+        const contextFile = JSON.parse(fs.readFileSync(uri.path, 'utf-8'));
+    }
+    const context = await myParser.parse(uri);
     global_context = context;
     const prefix_hash = {}
     Object.keys(context.getContextRaw()).filter((key) => key !== '@vocab').forEach((key) => {
