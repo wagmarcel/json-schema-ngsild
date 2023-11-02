@@ -152,7 +152,7 @@ function scanProperties(nodeShape, typeschema) {
                 var propertyShape = new PropertyShape(mincount, maxcount, nodeKind, $rdf.sym(path), isProperty);
                 nodeShape.addPropertyShape(propertyShape);
                 if (klass !== null) {
-                    propertyShape.addConstraint(new Constraint(SHACL('class'), klass));
+                    propertyShape.addConstraint(new Constraint(SHACL('class'), $rdf.sym(klass)));
                 }
                 scanConstraints(propertyShape, typeschema.properties[property])
             })
@@ -170,7 +170,7 @@ function scanConstraints(propertyShape, typeschema){
         propertyShape.addConstraint(new Constraint(SHACL('in'), typeschema.enum))
     }
     if ("datatype" in typeschema){
-        propertyShape.addConstraint(new Constraint(SHACL('datatype'), typeschema.datatype))
+        // propertyShape.addConstraint(new Constraint(SHACL('datatype'), typeschema.datatype))
     }
     if ("maxiumum" in typeschema){
         propertyShape.addConstraint(new Constraint(SHACL('maxInclusive'), typeschema.maximum))
